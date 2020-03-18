@@ -10,12 +10,12 @@ module.exports = {
 };
 
 function find() {
-  return db("scheme");
+  return db("schemes");
 }
 
 function findById(id) {
   if (id) {
-    return db("scheme")
+    return db("schemes")
       .where({ id })
       .first();
   } else {
@@ -25,18 +25,18 @@ function findById(id) {
 
 function findSteps(scheme_id) {
   return db("steps as s")
-    .join("scheme as sch", "sch.id", "s.scheme_id")
+    .join("schemes as sch", "sch.id", "s.scheme_id")
     .select("s.id", "sch.scheme_name", "s.step_number", "s.instructions")
     .where("s.scheme_id", scheme_id);
 }
 
 function add(scheme) {
-  return db("scheme").insert(scheme);
+  return db("schemes").insert(scheme);
 }
 
 function update(changes, id) {
   return db
-    .first("scheme")
+    .first("schemes")
     .where({ id })
     .update(changes)
     .then(() => {
@@ -44,8 +44,18 @@ function update(changes, id) {
     });
 }
 
-function remove(id) {
-  return db("scheme")
-    .where("id", id)
-    .del();
+async function remove(id) {
+  try {
+    const scheme = await findById(id);
+    if (id) {
+      db("schemes")
+        .where("id", id)
+        .del();
+      return scheme;
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.log("You are getting an error of:", err)
+  }
 }
